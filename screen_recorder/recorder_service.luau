@@ -247,6 +247,19 @@ local function buildResolutionFlag()
     return if res ~= "original" then `-s {res}` else ""
 end
 
+local function buildSaveScriptFlag()
+    local script = cfg("post_save_script")
+    if script == "" then return "" end
+
+    script = noctalia.expandPath(script)
+    if not noctalia.fileExists(script) then
+        log(`post-save script not found: {script}`)
+        return ""
+    end
+
+    return `-sc {shellQuote(script)}`
+end
+
 -- "cpu" forces the software encoder (h264-only), anything else keeps hardware encoding.
 local function buildEncoderFlag()
     return if cfg("video_encoder") == "cpu" then "-encoder cpu" else ""
@@ -334,8 +347,9 @@ local function buildRecordCommand(focusedOutputName, sourceOverride)
     local audioFlags = buildAudioFlags()
     local resFlag = buildResolutionFlag()
     local encoderFlag = buildEncoderFlag()
+    local scriptFlag = buildSaveScriptFlag()
 
-    local flags = `-w {source} -fm {fm} -f {fps} -k {codec} {encoderFlag} {audioFlags} {bitrateFlags} -cursor {cursor} -cr {cr} {resFlag} {restore} -v no -o "{outputPath}"`
+    local flags = `-w {source} -fm {fm} -f {fps} -k {codec} {encoderFlag} {audioFlags} {bitrateFlags} -cursor {cursor} -cr {cr} {resFlag} {scriptFlag} {restore} -v no -o "{outputPath}"`
 
     log(`starting recording: mode={selectedVideoSource(sourceOverride)} target={source} output={outputPath} flags=[{flags}]`)
 
@@ -370,8 +384,9 @@ local function buildReplayCommand(focusedOutputName, sourceOverride)
     local audioFlags = buildAudioFlags()
     local resFlag = buildResolutionFlag()
     local encoderFlag = buildEncoderFlag()
+    local scriptFlag = buildSaveScriptFlag()
 
-    local flags = `-w {source} -c mp4 -fm {fm} -f {fps} -k {codec} {encoderFlag} {audioFlags} {bitrateFlags} -cursor {cursor} -cr {cr} {resFlag} -r {duration} -replay-storage {storage} {restore} -v no -o "{dir}"`
+    local flags = `-w {source} -c mp4 -fm {fm} -f {fps} -k {codec} {encoderFlag} {audioFlags} {bitrateFlags} -cursor {cursor} -cr {cr} {resFlag} -r {duration} -replay-storage {storage} {scriptFlag} {restore} -v no -o "{dir}"`
 
     log(`starting replay buffer: mode={selectedVideoSource(sourceOverride)} target={source} dir={dir} flags=[{flags}]`)
 
