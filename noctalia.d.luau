@@ -180,6 +180,9 @@ export type Noctalia = {
   focusedOutputName: () -> string?,
   outputs: () -> { Output },
   isDarkMode: () -> boolean,
+  -- Active theme palette color for a role ("primary", "surface", "on_surface", ...) as
+  -- "#RRGGBB"; nil for unknown role names. API 31.
+  getColor: (role: string) -> string?,
   -- Effective shell config by dotted path ("bar.main.position", "shell.offline_mode").
   -- Array indices are zero-based ("bar.order[0]"); nil when the path matches nothing. API 26.
   getSetting: (path: string) -> any,
